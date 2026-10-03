@@ -13,7 +13,7 @@ fal.ai MCP server and CLI for Codex and AI agents. 66 shared tools for current m
 
 One package provides a task CLI, local stdio MCP and versioned desktop bundle. Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=referral&utm_campaign=fal-ai-mcp-cli&utm_content=readme). Complete setup: [navid.me](https://navid.me/mcp-servers/fal-ai?utm_source=github&utm_medium=referral&utm_campaign=fal-ai-mcp-cli&utm_content=guide).
 
-<img src="https://cdn.navid.me/repos/fal-ai-mcp-cli.gif?v=2.0.0" alt="Illustrated fal.ai workflow using the shared navid.me terminal" width="520">
+<img src="https://cdn.navid.me/repos/fal-ai-mcp-cli-retina.gif" alt="Illustrated fal.ai workflow using the shared navid.me terminal" width="520">
 
 The terminal illustrates actual commands, not a recorded provider account session. Node 22+ is required for manual installs; private account access, model eligibility and generation credits remain separate.
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+Use the native terminal capture at 1040 source pixels with lossless GIF optimization, displayed at 520 pixels, matching the Bluesky/Substack reference. Original assets remain available.
+
 ## 2.0.1: 2026-10-03
 
 Corrected copied desktop installation instructions to the actual native authentication scheme and 32 read-only tools. Native authenticated fal requests use the Key scheme. Updated package/desktop/versioned download references together. Handlers, tool catalogue, dependency entries and reviewed native API schemas are unchanged.
