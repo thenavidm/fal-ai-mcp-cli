@@ -1,0 +1,107 @@
+{
+  "manifest_version": "0.2",
+  "name": "fal-ai",
+  "display_name": "fal.ai MCP Server & CLI",
+  "version": "2.0.0",
+  "description": "fal.ai shared MCP and task CLI for current models, queue receipts, asset management, private accounts and exact approved generation batches.",
+  "long_description": "Shared model/queue/Assets workflows with mandatory explicit approval, isolated API-key profiles and exact generation batch review. Official hosted OAuth connection remains separate.",
+  "author": {
+    "name": "Navid Moazzez",
+    "url": "https://navid.me"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thenavidm/fal-ai-mcp-cli"
+  },
+  "homepage": "https://navid.me/mcp-servers/fal-ai",
+  "documentation": "https://github.com/thenavidm/fal-ai-mcp-cli/blob/main/INSTALL.md",
+  "support": "https://github.com/thenavidm/fal-ai-mcp-cli/issues",
+  "license": "AGPL-3.0",
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "cli",
+    "command-line-tool",
+    "fal-ai",
+    "generative-ai",
+    "image-generation",
+    "video-generation",
+    "audio-generation",
+    "model-discovery",
+    "queue-management",
+    "fal-assets",
+    "batch-review",
+    "codex",
+    "claude-code",
+    "claude-desktop",
+    "cursor",
+    "ai-agents",
+    "typescript",
+    "desktop-extension",
+    "private-accounts",
+    "json",
+    "mutation-approval",
+    "write-safety",
+    "gemini-cli",
+    "windsurf",
+    "open-source",
+    "read-only",
+    "schema-validation"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.js"
+      ],
+      "env": {
+        "FAL_TOKEN_FILE": "${user_config.token_file}",
+        "FAL_READ_ONLY": "${user_config.read_only}",
+        "FAL_ALLOW_DESTRUCTIVE": "${user_config.allow_destructive}",
+        "FAL_KEY": "${user_config.api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "token_file": {
+      "type": "string",
+      "title": "Private token-only file",
+      "description": "Absolute owner-private token-only account key file; overrides selected key.",
+      "required": false
+    },
+    "read_only": {
+      "type": "boolean",
+      "title": "Read only",
+      "description": "Hide and directly refuse mutations and private output file writes.",
+      "default": false,
+      "required": false
+    },
+    "api_key": {
+      "type": "string",
+      "title": "Account API key",
+      "description": "Private fal API key for this intended account; separate from OAuth relay sessions.",
+      "required": false,
+      "sensitive": true
+    },
+    "allow_destructive": {
+      "type": "boolean",
+      "title": "Allow confirmed mutations",
+      "description": "Permit mutation execution only when the tool call explicitly confirms the exact action. Disable to refuse all mutations.",
+      "default": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=22"
+    }
+  }
+}

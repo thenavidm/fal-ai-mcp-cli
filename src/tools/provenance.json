@@ -1,0 +1,14 @@
+{
+  "checked": "2026-10-03",
+  "source": "https://fal.ai/docs/api-reference/platform-apis/openapi/v1.json",
+  "apiVersion": "v1",
+  "openapi": "3.1.0",
+  "referenceDocumentSha256": "ecb1deaf7155562b89f4626ac15434d4fe293748a260f81496cd08da5580ea47",
+  "sanitizedSnapshotSha256": "e8d3f595a38de62a79af9486b9bb3407936a980fc9f93d33f895f618ec492280",
+  "publicMetadataSha256": "743aadd8fd7cb747aa8c8a031867311d50fed09352de34dee3c4a6e143b1523d",
+  "nativePlatformOperations": 53,
+  "upstreamPlatformOperations": 82,
+  "examples": "Removed upstream examples before publication. Native schema constraints retained.",
+  "scope": "Creative model metadata/pricing/usage/requests, workflows, all documented Assets and CDN ACL/retention operations; account billing and organization usage/team reads. No serverless/compute/key administration or CSV report wrappers.",
+  "modelExecution": "Official fal-js SDK queue root uses owner/alias (or namespace/owner/alias), not full inference subpath for status/result/cancel. No arbitrary provider URLs or retries. Dynamic model input schemas fetched and checked before paid calls; receipt-only submission default."
+}

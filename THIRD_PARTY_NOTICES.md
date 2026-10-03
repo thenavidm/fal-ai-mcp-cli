@@ -1,0 +1,3 @@
+# Third-party notices
+
+The owned runtime is AGPL-3.0; preserve the legacy license. Dependency licenses remain bundled by their publishers. Current provider schema descriptions/constraints are generated metadata, with examples removed; see api-provenance.json. Native request construction was checked against official fal-js SDK 1.10.1, MIT, without copying vendor implementation source. Official genmedia/community source is comparison evidence only. The unchanged house CLI/guard/server and desktop blueprint follow Navid Media references. No private legacy history, keys, uploads or sessions belong in public source/npm/desktop.
