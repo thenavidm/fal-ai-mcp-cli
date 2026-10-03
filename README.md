@@ -93,7 +93,7 @@ fal-ai-cli schema submit-job
 fal-ai-cli login
 ```
 
-Node 22+ for manual CLI/local MCP. [INSTALL.md](INSTALL.md) covers every declared client/OS and the versioned [desktop bundle](https://github.com/thenavidm/fal-ai-mcp-cli/releases/download/v2.0.0/fal-ai-2.0.0.mcpb). Official genmedia and Python fal are separate binaries; ours is fal-ai-cli.
+Node 22+ for manual CLI/local MCP. [INSTALL.md](INSTALL.md) covers every declared client/OS and the versioned [desktop bundle](https://github.com/thenavidm/fal-ai-mcp-cli/releases/download/v2.0.1/fal-ai-2.0.1.mcpb). Official genmedia and Python fal are separate binaries; ours is fal-ai-cli.
 
 ## 3. Set up fal.ai access
 
@@ -3239,7 +3239,7 @@ The pinned provider platform snapshot has 82 operations. This package selects 53
 
 | Component | Reviewed version |
 | --- | --- |
-| Package/desktop manifest | 2.0.0 |
+| Package/desktop manifest | 2.0.1 |
 | Node runtime | >=22 |
 | MCP SDK | 1.32.0 |
 | Ajv / formats | 8.20.0 / 3.0.1 |

@@ -1,6 +1,6 @@
 {
   "name": "@thenavidm/fal-ai-mcp-cli",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "fal.ai shared MCP and task CLI for current models, queue receipts, asset management, private accounts and exact approved generation batches.",
   "type": "module",
   "main": "./dist/index.js",

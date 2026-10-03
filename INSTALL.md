@@ -6,7 +6,7 @@ One npm package includes both binaries and all **66 tools**. Requires Node.js 22
 | --- | --- | --- |
 | Terminal | fal-ai-cli | Scripts and agents with a shell |
 | Local MCP | fal-ai-mcp | AI clients supporting stdio |
-| Desktop archive | fal-ai-2.0.0.mcpb | Compatible Claude Desktop custom extensions |
+| Desktop archive | fal-ai-2.0.1.mcpb | Compatible Claude Desktop custom extensions |
 | fal.ai-hosted alternative | https://mcp.fal.ai/mcp-relay | Official remote provider-hosted access |
 
 ## Contents
@@ -123,10 +123,10 @@ Alternatively install the CLI, make SKILL.md available to Claude, and use shell 
 
 ### Install the .mcpb extension
 
-1. Download `fal-ai-2.0.0.mcpb` from [GitHub Releases](https://github.com/thenavidm/fal-ai-mcp-cli/releases/latest).
+1. Download `fal-ai-2.0.1.mcpb` from [GitHub Releases](https://github.com/thenavidm/fal-ai-mcp-cli/releases/latest).
 2. In a supported Claude Desktop build, open **Settings > Extensions > Advanced settings > Install Extension…** and select it.
-3. Enter a private API key in the sensitive setting, or an absolute private token-file path. Leave the unused credential method empty. Requests use Authorization: Bearer at the fixed fal.ai endpoint. Use the intended account API key; named profiles are configured separately in private client environments.
-4. Enable read-only if you want only the 22 read operations. Reconnect and ask for account verification.
+3. Enter a private API key in the sensitive setting, or an absolute private token-file path. Leave the unused credential method empty. Authenticated native fal requests use Authorization: Key, not Bearer. Anonymous model/schema discovery can run without a key; paid/model/account work uses the explicitly selected private key. Use the intended account API key; named profiles are configured separately in private client environments.
+4. Enable read-only if you want only the 32 read operations. Reconnect and ask for account verification.
 
 The bundle includes production dependencies and no credentials. Use a regular private token-only file if you prefer file-based credentials. The manifest requires Node 22 or newer from a compatible host. Organization policy may restrict custom extensions. Manual bundle updates require installing the new version; no automatic directory updates are promised. GUI installation remains unverified separately from archive/protocol checks.
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1: 2026-10-03
+
+Corrected copied desktop installation instructions to the actual native authentication scheme and 32 read-only tools. Native authenticated fal requests use the Key scheme. Updated package/desktop/versioned download references together. Handlers, tool catalogue, dependency entries and reviewed native API schemas are unchanged.
+
 ## 2.0.0 — 2026-10-03
 
 | Component | Reviewed version |
