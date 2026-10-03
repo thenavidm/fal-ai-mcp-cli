@@ -3402,7 +3402,7 @@ Open a sanitized [issue](https://github.com/thenavidm/fal-ai-mcp-cli/issues). Us
 
 ## About the author
 
-Navid Moazzez is a leading AI business strategist, and the host of the AI Creator Summit, watched by 100,000+ creators. He helps creators and founders master AI and build their own AI Operating System (AI OS) to automate their business and life. This fal.ai MCP server and CLI is one piece of that system.
+Navid Moazzez is a leading AI business strategist, and the host of the AI Creator Summit, watched by 100,000+ creators. He helps creators and founders master AI and build their own AI Operating System (AI OS) to automate their business and life. He creates useful free tools, MCP servers and CLIs that creators and founders can use in their own workflows.
 
 **Links**
 
@@ -3426,4 +3426,4 @@ Preserves [AGPL-3.0](LICENSE) and existing private legacy history. Read [THIRD_P
 
 ---
 
-© 2026 [Navid Media](https://navid.media). Made with ❤️ by [Navid Moazzez](https://navid.me).
+© 2026 [Navid Media](https://navid.media?utm_source=github&utm_medium=referral&utm_campaign=fal-ai-mcp-cli&utm_content=readme). Made with ❤️ by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=referral&utm_campaign=fal-ai-mcp-cli&utm_content=readme).
