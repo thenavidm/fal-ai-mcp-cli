@@ -1,12 +1,13 @@
 {
   "name": "@thenavidm/fal-ai-mcp-cli",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "fal.ai shared MCP and task CLI for current models, queue receipts, asset management, private accounts and exact approved generation batches.",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
     "fal-ai-mcp": "dist/index.js",
-    "fal-ai-cli": "dist/index.js"
+    "fal-ai-cli": "dist/index.js",
+    "fal-ai-mcp-cli": "dist/npx.js"
   },
   "engines": {
     "node": ">=22"
