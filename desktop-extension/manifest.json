@@ -2,7 +2,7 @@
   "manifest_version": "0.2",
   "name": "fal-ai",
   "display_name": "fal.ai MCP Server & CLI",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "fal.ai shared MCP and task CLI for current models, queue receipts, asset management, private accounts and exact approved generation batches.",
   "long_description": "Shared model/queue/Assets workflows with mandatory explicit approval, isolated API-key profiles and exact generation batch review. Official hosted OAuth connection remains separate.",
   "author": {

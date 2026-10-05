@@ -8,4 +8,4 @@
 - Pass all seven Linux/macOS/Windows Node22/24+desktop CI jobs before annotated default-branch version tag.
 - Verify tag CI/release/npm latest, fresh anonymous named/@latest installs, downloaded desktop discovery and scans.
 - Publish complete native CMS guide through existing pipeline, preserve publication/indexing fields, read back/revalidate/live verify.
-- Record provider/GUI/actual Codex task-token/site deployment gaps separately; never call programme complete while pending.
+- Measure Claude Code (every tool loaded, tool search, SKILL.md) and Codex (one task over MCP and the CLI, five runs each) against the last npm release, and publish the figures in README section 7. Record provider/GUI/site deployment gaps separately; never call the program complete while any is pending.

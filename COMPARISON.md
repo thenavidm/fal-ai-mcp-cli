@@ -14,4 +14,4 @@ Build criterion: useful repeatable improvements that are demonstrated, while ack
 Pinned SDK @fal-ai/client 1.10.1 determines current queue owner/app-root construction and upload initiation. This runtime uses reviewed native HTTP rather than the upstream SDK retry/automatic-file helpers; no vendor source code is copied. Dynamic model schemas are fetched on demand, validated before paid calls and included by hash in reviewed batches. Native Assets metadata remains separate from an uploaded input file.
 
 
-Fresh matched successful Codex task/token evidence, authenticated hosted discovery, paid outcomes and desktop GUI remain pending.
+Authenticated hosted discovery, paid outcomes and desktop GUI remain unverified; README section 7 has this package's measured token costs, and no other offering was measured.

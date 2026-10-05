@@ -1,6 +1,8 @@
 # Security
 
-All 34 mutations, paid runs, cancellation, local input uploads and private signed-output files require --confirm or confirm:true through the same house guard. --agent/--yes is formatting, never consent. FAL_READ_ONLY=1 hides them and directly blocks confirmed calls; FAL_ALLOW_DESTRUCTIVE=0 separately refuses them. Provider read-only key scopes remain an additional control.
+All 34 mutations, paid runs, cancellation, local input uploads and private signed-output files require --confirm or confirm:true through the same write guard. --agent/--yes is formatting, never consent. FAL_READ_ONLY=1 hides them and directly blocks confirmed calls; FAL_ALLOW_DESTRUCTIVE=0 separately refuses them. Provider read-only key scopes remain an additional control.
+
+Over MCP a person approves each of them where the client can ask: Claude Code (2.1.246 and later) shows its own prompt, and a client that can show forms asks with an approval form whose one box starts unticked. Each approval is signed, bound to that exact call and works once. Where a client can do neither, the model's confirm:true counts. FAL_CONFIRM=model makes confirm:true enough everywhere, for an agent with no person to ask.
 
 Native estimate_pricing uses POST but is classified as a read because it estimates without generating. Schema/pricing reads still contact fal and carry private account identity when selected. Preview generation is not a free media dry run; it validates schema and current unit quotes only. Credentials, role permissions and provider quotas still control real success.
 

@@ -11,7 +11,7 @@
 
 fal.ai MCP server and CLI for Codex and AI agents. 66 shared tools for current models, queue receipts, Assets and storage controls, private account profiles and exact reviewed generation batches.
 
-One package provides a task CLI, local stdio MCP and versioned desktop bundle. Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=referral&utm_campaign=fal-ai-mcp-cli&utm_content=readme). Complete setup: [navid.me](https://navid.me/mcp-servers/fal-ai?utm_source=github&utm_medium=referral&utm_campaign=fal-ai-mcp-cli&utm_content=guide).
+One package provides a task CLI, local stdio MCP and versioned desktop bundle. Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=referral&utm_campaign=fal-ai-mcp-cli&utm_content=readme). Built on [Slipway](https://github.com/thenavidm/slipway), which turns one definition of each tool into the MCP server and the CLI. Complete setup: [navid.me](https://navid.me/mcp-servers/fal-ai?utm_source=github&utm_medium=referral&utm_campaign=fal-ai-mcp-cli&utm_content=guide).
 
 <img src="https://cdn.navid.me/repos/fal-ai-mcp-cli-retina.gif" alt="Illustrated fal.ai workflow using the shared navid.me terminal" width="520">
 
@@ -170,7 +170,7 @@ fal-ai-cli schema estimate-pricing
 
 | Flag | Behavior |
 | --- | --- |
-| --agent | Compact JSON, no input/color; never confirmation |
+| --agent | Compact JSON and no prompts; never confirms a write |
 | --confirm | Explicit approval for exactly the requested operation |
 | --account LABEL | Exact private API-key profile |
 | --select a,b.c | Local output field selection |
@@ -182,7 +182,8 @@ fal-ai-cli schema estimate-pricing
 | Exit | Meaning |
 | --- | --- |
 | 0 | Handler success/receipt; submission does not mean completed generation |
-| 2 | Invalid input or refused policy operation |
+| 1 | Unexpected error |
+| 2 | Invalid input or refused policy operation, an unknown command or a hidden write |
 | 3 | Not found |
 | 4 | Provider authentication/permissions |
 | 5 | Provider/network/unknown outcome |
@@ -194,7 +195,19 @@ fal-ai-cli schema estimate-pricing
 
 The tools, schemas, handlers and write guard are shared. MCP clients discover local tools; shell agents can inspect command help/schema only when needed and select smaller result fields. Context cost depends on client tool discovery, loaded descriptions/schemas, prompts and output size.
 
-No fresh matched successful Codex task/token comparison is measured for this release. Tool-list bytes or characters divided by four are not API usage. Actual schemas/receipts and refusal fixtures establish local behavior, not cost efficiency or universal superiority. Measure the same successful task and result coverage in the intended client before publishing a saving percentage. Historical Claude numbers from other packages do not apply here.
+Measured on 2026-10-05 against 2.0.2, the same day, with Claude Code 2.1.286 on Claude Opus 5.5 (one short prompt with and without the server connected, the difference read from the API's own usage figures) and Codex 0.159.3 on gpt-6.1-sol:
+
+| Cost | 2.0.2 | 3.0.0 |
+| --- | --- | --- |
+| Claude Code, every tool loaded, every message | 41,570 | 40,519 |
+| Claude Code's default, tool search, every message | 1,316 | 1,319 |
+| `SKILL.md`, read once | 1,290 | 1,340 |
+| Codex over the CLI, one task, median of five | 127,484 | 105,371 |
+| Codex over MCP, the same task, median of five | 77,462 | 77,596 |
+
+The task was "find the command that estimates what a generation will cost, and the flags it requires". Over the CLI, three 2.0.2 runs guessed an `estimate` command that does not exist, because 2.0.2's help listed none, and every extra step carries the whole conversation forward; every 3.0.0 run asked `which`. Over MCP, Codex prints its own TypeScript rendering of the tool list and keeps its first and last 20,000 characters or so: the whole rendering is 532 tokens shorter on 3.0.0, but the part Codex keeps holds about 57 more, which each later request carries. `SKILL.md` costs 50 more because it now says how approval works over MCP and lists every exit code.
+
+Tool-list bytes or characters divided by four are not API usage, and no other offering was measured.
 
 ## 8. Every tool and argument
 
@@ -605,7 +618,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `request_id` | Yes | string | Unique identifier for the request (UUID format) format: `"uuid"`. |
 | `Idempotency_Key` | No; body/guard requirements still apply | string | Optional idempotency key for safe request retries |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 #### `list_requests_by_endpoint`
 
@@ -751,7 +764,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `contents` | No; body/guard requirements still apply | object | The workflow definition/configuration object |
 | `is_public` | No; body/guard requirements still apply | boolean | Whether the workflow is publicly visible default: `false`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -967,7 +980,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `parent_collection_id` | No; body/guard requirements still apply | ['string', 'null'] | Optional parent collection ID to nest this collection under (manual collections only). Omit or null to create a top-level collection. minLength: `1`. |
 | `filters` | No; body/guard requirements still apply | JSON | Assets filter DSL |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1011,7 +1024,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `cover_image_url` | No; body/guard requirements still apply | ['string', 'null'] | Optional fal-hosted cover image URL for the collection format: `"uri"`. |
 | `filters` | No; body/guard requirements still apply | JSON | Assets filter DSL |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1037,7 +1050,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `collection_id` | Yes | string | Collection ID minLength: `1`. |
 | `Idempotency_Key` | No; body/guard requirements still apply | string | Optional idempotency key for safe request retries |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 #### `get_asset_collection_hierarchy`
 
@@ -1061,7 +1074,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `collection_id` | Yes | string | Collection ID minLength: `1`. |
 | `Idempotency_Key` | No; body/guard requirements still apply | string | Optional idempotency key for safe request retries |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 #### `unfavorite_asset_collection`
 
@@ -1074,7 +1087,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `collection_id` | Yes | string | Collection ID minLength: `1`. |
 | `Idempotency_Key` | No; body/guard requirements still apply | string | Optional idempotency key for safe request retries |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 #### `move_asset_collection`
 
@@ -1088,7 +1101,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `Idempotency_Key` | No; body/guard requirements still apply | string | Optional idempotency key for safe request retries |
 | `parent_collection_id` | No; body/guard requirements still apply | ['string', 'null'] | Parent collection ID to move this collection under, or null to move it to the top level. Must be a manual collection; nesting is limited to 5 levels and cannot create a cycle. minLength: `1`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1161,7 +1174,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `request_id` | No; body/guard requirements still apply | string | Request ID to save as an asset before mutating minLength: `1`. |
 | `vector_id` | No; body/guard requirements still apply | string | Vector ID to save as an asset before mutating minLength: `1`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1185,7 +1198,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `request_id` | No; body/guard requirements still apply | string | Request ID to save as an asset before mutating minLength: `1`. |
 | `vector_id` | No; body/guard requirements still apply | string | Vector ID to save as an asset before mutating minLength: `1`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1223,7 +1236,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `reference_images` | No; body/guard requirements still apply | array | Reference images for the character. Prefer vector IDs or request IDs for existing fal-generated assets. Use fal-hosted image URLs only for standalone images. minItems: `1`. maxItems: `20`. |
 | `cover_image_url` | No; body/guard requirements still apply | ['string', 'null'] | Optional fal-hosted cover image URL for the character format: `"uri"`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1266,7 +1279,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `reference_images` | No; body/guard requirements still apply | array | Reference images for the character. Prefer vector IDs or request IDs for existing fal-generated assets. Use fal-hosted image URLs only for standalone images. minItems: `1`. maxItems: `20`. |
 | `cover_image_url` | No; body/guard requirements still apply | ['string', 'null'] | Optional fal-hosted cover image URL for the character format: `"uri"`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1315,7 +1328,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `character_id` | Yes | string | Character collection ID minLength: `1`. |
 | `Idempotency_Key` | No; body/guard requirements still apply | string | Optional idempotency key for safe request retries |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 #### `favorite_asset_character`
 
@@ -1328,7 +1341,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `character_id` | Yes | string | Character collection ID minLength: `1`. |
 | `Idempotency_Key` | No; body/guard requirements still apply | string | Optional idempotency key for safe request retries |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 #### `unfavorite_asset_character`
 
@@ -1341,7 +1354,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `character_id` | Yes | string | Character collection ID minLength: `1`. |
 | `Idempotency_Key` | No; body/guard requirements still apply | string | Optional idempotency key for safe request retries |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 #### `list_asset_tags`
 
@@ -1364,7 +1377,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `Idempotency_Key` | No; body/guard requirements still apply | string | Optional idempotency key for safe request retries |
 | `name` | No; body/guard requirements still apply | string | Tag name minLength: `1`. maxLength: `50`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1387,7 +1400,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `vector_id` | No; body/guard requirements still apply | string | Vector ID to save as an asset before mutating minLength: `1`. |
 | `tag_ids` | No; body/guard requirements still apply | array | Full replacement set of tag IDs |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1425,7 +1438,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `Idempotency_Key` | No; body/guard requirements still apply | string | Optional idempotency key for safe request retries |
 | `name` | No; body/guard requirements still apply | string | Tag name minLength: `1`. maxLength: `50`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1446,7 +1459,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `tag_id` | Yes | string | Tag ID minLength: `1`. |
 | `Idempotency_Key` | No; body/guard requirements still apply | string | Optional idempotency key for safe request retries |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 #### `upload_asset`
 
@@ -1464,7 +1477,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `favorite` | No; body/guard requirements still apply | boolean | Whether to favorite the uploaded asset immediately default: `false`. |
 | `tag_ids` | No; body/guard requirements still apply | array | Tag IDs to assign to the uploaded asset default: `[]`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1528,7 +1541,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `request_id` | No; body/guard requirements still apply | string | Request ID to save as an asset before mutating minLength: `1`. |
 | `vector_id` | No; body/guard requirements still apply | string | Vector ID to save as an asset before mutating minLength: `1`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1551,7 +1564,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `request_id` | No; body/guard requirements still apply | string | Request ID to save as an asset before mutating minLength: `1`. |
 | `vector_id` | No; body/guard requirements still apply | string | Vector ID to save as an asset before mutating minLength: `1`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1586,7 +1599,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `request_id` | No; body/guard requirements still apply | string | Request ID to save as an asset before mutating minLength: `1`. |
 | `vector_id` | No; body/guard requirements still apply | string | Vector ID to save as an asset before mutating minLength: `1`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1610,7 +1623,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `request_id` | No; body/guard requirements still apply | string | Request ID to save as an asset before mutating minLength: `1`. |
 | `vector_id` | No; body/guard requirements still apply | string | Vector ID to save as an asset before mutating minLength: `1`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1644,7 +1657,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `default` | No; body/guard requirements still apply | string | Fallback decision when no user-specific rule matches enum: `["allow", "forbid", "hide"]`. |
 | `rules` | No; body/guard requirements still apply | array | User-specific overrides to the default decision default: `[]`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1686,7 +1699,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `url` | Yes | string | Full URL of the fal CDN file, as returned by the upload APIs (https://v3.fal.media/files/b/<id>/<filename>). Must not contain query parameters. format: `"uri"`. |
 | `expiration_seconds` | No; body/guard requirements still apply | integer | How long the signed URL stays valid, in seconds (max 7 days) minimum: `1`. maximum: `604800`. |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 | `output_file` | Yes | string | Required absolute new owner-private file; signed credential URL is never echoed. minLength: `1`. |
@@ -1718,7 +1731,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `expiration_duration_seconds` | No; body/guard requirements still apply | ['integer', 'null'] | Seconds after which newly uploaded files automatically expire and are deleted. Null disables auto-expiration. minimum: `1`. |
 | `initial_acl` | No; body/guard requirements still apply | ['object', 'null'] | Default ACL applied to newly uploaded files. Null uses the system default (public). |
 | `account` | No; body/guard requirements still apply | string | Exact private account key profile label, not an authenticated provider owner ID. |
-| `confirm` | No; body/guard requirements still apply | boolean | Must be true for the requested mutation, paid work or private output file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `payload` | No; body/guard requirements still apply | object | Complete native JSON body, mutually exclusive with flat body flags and payload_file. Use schema for union bodies. |
 | `payload_file` | No; body/guard requirements still apply | string | Absolute regular non-symlink private JSON file, at most 1 MiB. Cannot mix with other body inputs. minLength: `1`. |
 
@@ -1936,7 +1949,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `lifecycle` | No; body/guard requirements still apply | object | Native CDN expiry/ACL preference. Omit to use account defaults. null expiration means no expiry; default CDN access may be public. Unknown nicknames may be dropped by provider. |
 | `store_io` | No; body/guard requirements still apply | boolean | Local default false sends X-Fal-Store-IO:0. true allows provider JSON payload storage; CDN media retention/ACL is separate. default: `false`. |
 | `account` | No; body/guard requirements still apply | string | Exact configured isolated API-key profile label. |
-| `confirm` | No; body/guard requirements still apply | boolean | Explicit approval for the requested paid work, mutation, upload or private file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 **input.lifecycle**
 
@@ -1975,7 +1988,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `lifecycle` | No; body/guard requirements still apply | object | Native CDN expiry/ACL preference. Omit to use account defaults. null expiration means no expiry; default CDN access may be public. Unknown nicknames may be dropped by provider. |
 | `store_io` | No; body/guard requirements still apply | boolean | Local default false sends X-Fal-Store-IO:0. true allows provider JSON payload storage; CDN media retention/ACL is separate. default: `false`. |
 | `account` | No; body/guard requirements still apply | string | Exact configured isolated API-key profile label. |
-| `confirm` | No; body/guard requirements still apply | boolean | Explicit approval for the requested paid work, mutation, upload or private file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 **input.lifecycle**
 
@@ -2014,7 +2027,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `lifecycle` | No; body/guard requirements still apply | object | Native CDN expiry/ACL preference. Omit to use account defaults. null expiration means no expiry; default CDN access may be public. Unknown nicknames may be dropped by provider. |
 | `store_io` | No; body/guard requirements still apply | boolean | Local default false sends X-Fal-Store-IO:0. true allows provider JSON payload storage; CDN media retention/ACL is separate. default: `false`. |
 | `account` | No; body/guard requirements still apply | string | Exact configured isolated API-key profile label. |
-| `confirm` | No; body/guard requirements still apply | boolean | Explicit approval for the requested paid work, mutation, upload or private file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 **input.lifecycle**
 
@@ -2053,7 +2066,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `lifecycle` | No; body/guard requirements still apply | object | Native CDN expiry/ACL preference. Omit to use account defaults. null expiration means no expiry; default CDN access may be public. Unknown nicknames may be dropped by provider. |
 | `store_io` | No; body/guard requirements still apply | boolean | Local default false sends X-Fal-Store-IO:0. true allows provider JSON payload storage; CDN media retention/ACL is separate. default: `false`. |
 | `account` | No; body/guard requirements still apply | string | Exact configured isolated API-key profile label. |
-| `confirm` | No; body/guard requirements still apply | boolean | Explicit approval for the requested paid work, mutation, upload or private file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 **input.lifecycle**
 
@@ -2115,7 +2128,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `model_id` | Yes | string | Exact current catalog endpoint ID. Never guess model names or parameter mappings. minLength: `3`. maxLength: `240`. |
 | `request_id` | Yes | string | Exact queue receipt ID; status/result/cancel use its owner/app root, without inference subpaths. pattern: `"^[A-Za-z0-9_-]{1,128}$"`. |
 | `account` | No; body/guard requirements still apply | string | Exact configured isolated API-key profile label. |
-| `confirm` | No; body/guard requirements still apply | boolean | Explicit approval for the requested paid work, mutation, upload or private file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 #### `upload_file`
 
@@ -2129,7 +2142,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | `content_type` | Yes | string | Plain MIME type matching the selected media. pattern: `"^[a-zA-Z0-9.+-]+/[a-zA-Z0-9.+-]+$"`. |
 | `lifecycle` | No; body/guard requirements still apply | object | Native CDN expiry/ACL preference. Omit to use account defaults. null expiration means no expiry; default CDN access may be public. Unknown nicknames may be dropped by provider. |
 | `account` | No; body/guard requirements still apply | string | Exact configured isolated API-key profile label. |
-| `confirm` | No; body/guard requirements still apply | boolean | Explicit approval for the requested paid work, mutation, upload or private file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 
 **input.lifecycle**
 
@@ -2230,7 +2243,7 @@ Policy: Confirmed operation; read-only hides and directly refuses it.
 | --- | --- | --- | --- |
 | `tasks` | Yes | array | One to ten ordered async generation payloads. CLI repeats --tasks individual JSON objects. One job can produce several outputs; this is not a cost or output-count budget. minItems: `1`. maxItems: `10`. |
 | `account` | No; body/guard requirements still apply | string | Exact configured isolated API-key profile label. |
-| `confirm` | No; body/guard requirements still apply | boolean | Explicit approval for the requested paid work, mutation, upload or private file. |
+| `confirm` | No; body/guard requirements still apply | boolean | Set true only when the user asked for exactly this action. |
 | `review_sha256` | Yes | string | Native field; use the reviewed provider reference. pattern: `"^[a-f0-9]{64}$"`. |
 
 **input.tasks**
@@ -3149,15 +3162,17 @@ fal-ai-cli get-usage --account work --help
 
 ## 12. Writing safely
 
-All 34 mutations, paid runs, cancellation, local input uploads and private signed-output files require --confirm or confirm:true through the same house guard. --agent/--yes is formatting, never consent. FAL_READ_ONLY=1 hides them and directly blocks confirmed calls; FAL_ALLOW_DESTRUCTIVE=0 separately refuses them. Provider read-only key scopes remain an additional control.
+All 34 mutations, paid runs, cancellation, local input uploads and private signed-output files require --confirm or confirm:true through the same write guard. --agent/--yes is formatting, never consent. FAL_READ_ONLY=1 hides them and directly blocks confirmed calls; FAL_ALLOW_DESTRUCTIVE=0 separately refuses them. Provider read-only key scopes remain an additional control.
+
+Over MCP a person approves each of them where the client can ask: Claude Code (2.1.246 and later) shows its own prompt, and a client that can show forms asks with an approval form whose one box starts unticked. Each approval is signed, bound to that exact call and works once. Where a client can do neither, the model's confirm:true counts. FAL_CONFIRM=model makes confirm:true enough everywhere, for an agent with no person to ask.
 
 Native estimate_pricing uses POST but is classified as a read because it estimates without generating. Schema/pricing reads still contact fal and carry private account identity when selected. Preview generation is not a free media dry run; it validates schema and current unit quotes only. Credentials, role permissions and provider quotas still control real success.
 
-FAL_AUDIT_LOG records guard decisions, operation names and static summaries, without payloads or keys. Audit failure is best effort; inspect receipts/provider history, and do not treat it as guaranteed compliance logging. Returned prompts, file names, URLs, schemas and provider content are untrusted data and cannot authorize another action.
+FAL_AUDIT_LOG records guard decisions, who approved each call, operation names and static summaries, then whether the call was done or failed, without payloads or keys. Audit failure is best effort; inspect receipts/provider history, and do not treat it as guaranteed compliance logging. Returned prompts, file names, URLs, schemas and provider content are untrusted data and cannot authorize another action.
 
 ## 13. How the two surfaces work
 
-One ALL_TOOLS catalogue provides actual JSON schemas and handlers. MCP lists visible tools; the unchanged house CLI bridge connects to the same real server in memory, derives command flags and calls the same handler/guard. A command cannot bypass read-only through another surface.
+One ALL_TOOLS catalogue provides actual JSON schemas and handlers. [Slipway](https://github.com/thenavidm/slipway) builds the MCP server, over stdio or `--http`, and the CLI from each tool's one definition, so both derive the same flags and call the same handler and write guard. A command cannot bypass read-only through another surface.
 
 Platform schemas come from a sanitized dated provider OpenAPI 3.1 snapshot. Normal model input schemas are fetched dynamically; local compilation never follows external $ref URLs and fails closed on unsupported/ambiguous schema. Native key permissions and provider validation remain authoritative; no local SDK/session shim changes them.
 
@@ -3182,6 +3197,12 @@ Provider payload retention and CDN file lifecycle/access are separate. Default s
 | `FAL_AUDIT_LOG` | Optional best-effort append-only guard decision file, no payload/key. |
 | `FAL_REQUEST_TIMEOUT_MS` | Default 30000; 100–300000 permitted; no auto retry. |
 | `FAL_MIN_REQUEST_INTERVAL_MS` | Default 350; 0–10000 permitted; process-wide request spacing, not a provider/cross-process limiter. |
+| `FAL_CONFIRM` | `human` by default; `model` lets confirm:true alone approve over MCP, for an agent with no person to ask |
+| `FAL_SURFACE` | `full` by default; `search` lists three tools that find, describe and run the rest |
+| `FAL_TOOL_TIMEOUT_MS` | Give up on any tool after this long |
+| `FAL_HTTP_PORT`, `FAL_HTTP_HOST`, `FAL_HTTP_TOKEN` | For `--http`: port 8787 and host 127.0.0.1 by default; any other host needs the bearer token |
+| `FAL_HTTP_ALLOWED_ORIGINS` | Comma-separated browser origins allowed to call `--http`; a page from any other site is refused |
+| `FAL_DEBUG` | `1` prints debug lines on stderr |
 
 ## 16. Updates and removal
 
@@ -3239,9 +3260,10 @@ The pinned provider platform snapshot has 82 operations. This package selects 53
 
 | Component | Reviewed version |
 | --- | --- |
-| Package/desktop manifest | 2.0.1 |
+| Package/desktop manifest | 3.0.0 |
 | Node runtime | >=22 |
-| MCP SDK | 1.32.0 |
+| Slipway | 0.1.14 |
+| MCP TypeScript SDK, through Slipway | 2.3.0 |
 | Ajv / formats | 8.20.0 / 3.0.1 |
 | TypeScript / Vitest | 7.0.2 / 5.0.3 |
 | Desktop builder | 2.1.2 |
@@ -3385,7 +3407,7 @@ No. A cancellation receipt does not guarantee processing stopped, eligibility or
 <details>
 <summary><b>Is token efficiency measured?</b></summary>
 
-Fresh matched successful Codex task/API-usage measurements remain pending. Schema size, fixture refusals or another client/package’s old numbers cannot establish a saving percentage.
+Yes, for this package. In Claude Code the CLI costs nothing until it is used, plus about 1,340 tokens for `SKILL.md` once, where the server costs about 1,320 tokens a message with tool search and 40,500 with every tool loaded. In Codex, finding the pricing command and its flags took a median of 105,371 input tokens over the CLI and 77,596 over MCP. Section 7 has how each was measured.
 
 </details>
 
@@ -3418,7 +3440,7 @@ If this is useful, star the repo and come say hi on [X](https://x.com/thenavidm)
 
 ## Dependencies
 
-Runtime: MCP TypeScript SDK, Ajv and ajv-formats. Development: TypeScript, Vitest, Vite and MCPB. Exact locked versions appear above. Packaging tools are excluded from desktop runtime.
+Runtime: Slipway, which brings the MCP TypeScript SDK, plus Ajv and ajv-formats. Development: TypeScript, Vitest, Vite and MCPB. Exact locked versions appear above. Packaging tools are excluded from desktop runtime.
 
 ## License
 
