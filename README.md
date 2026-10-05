@@ -3260,9 +3260,9 @@ The pinned provider platform snapshot has 82 operations. This package selects 53
 
 | Component | Reviewed version |
 | --- | --- |
-| Package/desktop manifest | 3.0.0 |
+| Package/desktop manifest | 3.0.1 |
 | Node runtime | >=22 |
-| Slipway | 0.1.14 |
+| Slipway | 0.1.17 |
 | MCP TypeScript SDK, through Slipway | 2.3.0 |
 | Ajv / formats | 8.20.0 / 3.0.1 |
 | TypeScript / Vitest | 7.0.2 / 5.0.3 |

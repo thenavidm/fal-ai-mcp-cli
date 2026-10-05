@@ -39,6 +39,9 @@ export const INSTRUCTIONS = "fal.ai shared task CLI and local MCP. Current model
 /** Helpers that never leave this machine. */
 const LOCAL = new Set(["list_accounts", "get_operation_schema"]);
 
+/** What 2.x's refusal said a confirmed call can do; the refusal and the approval form say it again. */
+const WHY = "may spend generation credits, change asset/ACL/retention data, upload private media, cancel jobs or create private output files";
+
 const GENERIC_CODES = new Set(["USAGE", "CONFIG", "RATE_LIMIT", "AUTH", "API_ERROR"]);
 
 const LOGIN_HINT = "Run `fal-ai-cli login` for what to set.";
@@ -77,6 +80,7 @@ function toTool(spec: ToolSpec): Tool<Context> {
     risk: spec.risk,
     // 2.x asked for confirmation where the risk === "destructive".
     requireConfirm: spec.risk === "destructive",
+    ...(spec.risk === "destructive" ? { consequence: WHY } : {}),
     openWorld: !LOCAL.has(spec.name),
     summary: () => spec.title,
     handler: async (args, ctx) => {
